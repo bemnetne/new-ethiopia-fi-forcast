@@ -1,0 +1,24 @@
+record_id,parent_id,event_name,event_date,event_category,pillar,related_indicator,relationship_type,impact_direction,impact_magnitude,lag_months,evidence_basis,confidence
+IMP_0001,EVT_0001,Telebirr Launch,2021-05-17,product_launch,ACCESS,ACC_OWNERSHIP,direct,increase,high,12.0,literature,medium
+IMP_0003,EVT_0001,Telebirr Launch,2021-05-17,product_launch,USAGE,USG_P2P_COUNT,direct,increase,high,6.0,empirical,medium
+IMP_0002,EVT_0001,Telebirr Launch,2021-05-17,product_launch,USAGE,USG_TELEBIRR_USERS,direct,increase,high,3.0,empirical,high
+IMP_0004,EVT_0002,Safaricom Ethiopia Commercial Launch,2022-08-01,market_entry,ACCESS,ACC_4G_COV,direct,increase,medium,12.0,empirical,medium
+IMP_0005,EVT_0002,Safaricom Ethiopia Commercial Launch,2022-08-01,market_entry,AFFORDABILITY,AFF_DATA_INCOME,indirect,decrease,medium,12.0,literature,medium
+IMP_0007,EVT_0003,M-Pesa Ethiopia Launch,2023-08-01,product_launch,ACCESS,ACC_MM_ACCOUNT,direct,increase,medium,6.0,theoretical,medium
+IMP_0006,EVT_0003,M-Pesa Ethiopia Launch,2023-08-01,product_launch,USAGE,USG_MPESA_USERS,direct,increase,high,3.0,empirical,high
+IMP_0015,EVT_0011,Revised Payment Instrument Issuer Directive,2023-10-09,regulation,ACCESS,ACC_MM_ACCOUNT,direct,increase,medium,6.0,theoretical,medium
+IMP_0016,EVT_0011,Revised Payment Instrument Issuer Directive,2023-10-09,regulation,USAGE,USG_SECTOR_ACTIVE_ACCOUNT_RATE,enabling,increase,medium,12.0,theoretical,medium
+IMP_0008,EVT_0004,Fayda Digital ID Program Rollout,2024-01-01,infrastructure,ACCESS,ACC_OWNERSHIP,enabling,increase,medium,24.0,literature,medium
+IMP_0009,EVT_0004,Fayda Digital ID Program Rollout,2024-01-01,infrastructure,GENDER,GEN_GAP_ACC,indirect,decrease,medium,24.0,literature,medium
+IMP_0017,EVT_0012,National Financial Education Module Launch,2024-02-29,policy,USAGE,USG_DIGITAL_PAYMENT_RATE,enabling,increase,low,12.0,theoretical,medium
+IMP_0019,EVT_0013,National Interoperable QR Payment Standard Launch,2024-04-05,regulation,USAGE,USG_DIGITAL_PAYMENT_RATE,enabling,increase,medium,12.0,theoretical,medium
+IMP_0018,EVT_0013,National Interoperable QR Payment Standard Launch,2024-04-05,regulation,USAGE,USG_POS_COUNT,direct,increase,medium,6.0,theoretical,medium
+IMP_0010,EVT_0005,Foreign Exchange Liberalization,2024-07-29,policy,AFFORDABILITY,AFF_DATA_INCOME,indirect,increase,high,3.0,empirical,high
+IMP_0020,EVT_0014,National Digital Payments Strategy Phase Two Launch,2025-03-28,policy,ACCESS,ACC_OWNERSHIP,enabling,increase,medium,12.0,expert,medium
+IMP_0021,EVT_0014,National Digital Payments Strategy Phase Two Launch,2025-03-28,policy,USAGE,USG_DIGITAL_PAYMENT_RATE,enabling,increase,medium,12.0,expert,medium
+IMP_0022,EVT_0015,ISO 20022 EATS Payment System Upgrade,2025-03-29,infrastructure,USAGE,USG_DIGITAL_TXN_VALUE,enabling,increase,low,6.0,theoretical,medium
+IMP_0023,EVT_0015,ISO 20022 EATS Payment System Upgrade,2025-03-29,infrastructure,USAGE,USG_P2P_COUNT,indirect,increase,low,12.0,theoretical,medium
+IMP_0011,EVT_0007,M-Pesa EthSwitch Integration,2025-10-27,partnership,USAGE,USG_MPESA_ACTIVE,direct,increase,medium,3.0,literature,medium
+IMP_0012,EVT_0007,M-Pesa EthSwitch Integration,2025-10-27,partnership,USAGE,USG_P2P_COUNT,direct,increase,medium,3.0,literature,medium
+IMP_0014,EVT_0010,Safaricom Ethiopia Price Increase,2025-12-15,pricing,AFFORDABILITY,AFF_DATA_INCOME,direct,increase,low,1.0,empirical,high
+IMP_0013,EVT_0008,EthioPay Instant Payment System Launch,2025-12-18,infrastructure,USAGE,USG_P2P_COUNT,indirect,increase,medium,6.0,literature,medium
