@@ -5,6 +5,7 @@ from src.config import (
     REFERENCE_EXCEL_PATH,
     UNIFIED_CSV_PATH,
     REFERENCE_CSV_PATH,
+    ENRICHED_DATA_PATH,
 )
 
 
@@ -133,3 +134,25 @@ def load_data():
     )
 
     return unified_df, reference_df
+
+def load_enriched_data():
+    """
+    Load the processed dataset created during
+    data preparation and enrichment.
+    """
+
+    if not ENRICHED_DATA_PATH.exists():
+        raise FileNotFoundError(
+            "The enriched dataset was not found. "
+            "Complete the data-enrichment stage first."
+        )
+
+    enriched_df = pd.read_csv(
+        ENRICHED_DATA_PATH
+    )
+
+    enriched_df = clean_column_names(
+        enriched_df
+    )
+
+    return enriched_df
