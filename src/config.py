@@ -8,6 +8,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
 PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
 
+REPORTS_DIR = PROJECT_ROOT / "reports"
+FIGURES_DIR = REPORTS_DIR / "figures"
+
 # Excel input files
 UNIFIED_EXCEL_PATH = RAW_DATA_DIR / "ethiopia_fi_unified_data.xlsx"
 REFERENCE_EXCEL_PATH = RAW_DATA_DIR / "reference_codes.xlsx"
@@ -26,3 +29,4 @@ ENRICHED_DATA_PATH = (
     PROCESSED_DATA_DIR
     / "ethiopia_fi_enriched.csv"
 )
+
