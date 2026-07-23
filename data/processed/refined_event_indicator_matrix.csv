@@ -1,0 +1,12 @@
+parent_id,event_name,ACC_OWNERSHIP,ACC_MM_ACCOUNT,ACC_4G_COV,ACC_FAYDA,USG_DIGITAL_PAYMENT_RATE,USG_P2P_COUNT,USG_ACTIVE_RATE,USG_SECTOR_ACTIVE_ACCOUNT_RATE,USG_POS_COUNT,USG_DIGITAL_TXN_VALUE
+EVT_0001,Telebirr Launch,2,0,0,0,0,3,0,0,0,0
+EVT_0002,Safaricom Ethiopia Commercial Launch,0,0,2,0,0,0,0,0,0,0
+EVT_0003,M-Pesa Ethiopia Launch,0,2,0,0,0,0,0,0,0,0
+EVT_0004,Fayda Digital ID Program Rollout,2,0,0,0,0,0,0,0,0,0
+EVT_0007,M-Pesa EthSwitch Integration,0,0,0,0,0,2,0,0,0,0
+EVT_0008,EthioPay Instant Payment System Launch,0,0,0,0,0,2,0,0,0,0
+EVT_0011,Revised Payment Instrument Issuer Directive,0,2,0,0,0,0,0,2,0,0
+EVT_0012,National Financial Education Module Launch,0,0,0,0,1,0,0,0,0,0
+EVT_0013,National Interoperable QR Payment Standard Launch,0,0,0,0,2,0,0,0,2,0
+EVT_0014,National Digital Payments Strategy Phase Two Launch,2,0,0,0,2,0,0,0,0,0
+EVT_0015,ISO 20022 EATS Payment System Upgrade,0,0,0,0,0,1,0,0,0,1

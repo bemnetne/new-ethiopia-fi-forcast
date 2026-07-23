@@ -1,0 +1,19 @@
+target,year,scenario,forecast_rate
+Account Ownership Rate,2025,base,50.3
+Account Ownership Rate,2026,base,51.7
+Account Ownership Rate,2027,base,53.2
+Account Ownership Rate,2025,optimistic,50.5
+Account Ownership Rate,2026,optimistic,52.0
+Account Ownership Rate,2027,optimistic,53.5
+Account Ownership Rate,2025,pessimistic,49.5
+Account Ownership Rate,2026,pessimistic,50.0
+Account Ownership Rate,2027,pessimistic,50.5
+Digital Payment Usage,2025,base,38.0
+Digital Payment Usage,2026,base,41.5
+Digital Payment Usage,2027,base,45.5
+Digital Payment Usage,2025,optimistic,40.0
+Digital Payment Usage,2026,optimistic,45.0
+Digital Payment Usage,2027,optimistic,50.0
+Digital Payment Usage,2025,pessimistic,36.5
+Digital Payment Usage,2026,pessimistic,38.0
+Digital Payment Usage,2027,pessimistic,39.5
