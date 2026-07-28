@@ -1,5 +1,5 @@
 # Ethiopia Financial Inclusion Forecast
-
+[![CI](https://github.com/YOUR-USERNAME/YOUR-REPOSITORY/actions/workflows/unittests.yml/badge.svg)](https://github.com/bemnetne/new-ethiopia-fi-forcast.git/actions/workflows/unittests.yml)
 This project analyzes Ethiopia's financial inclusion landscape, models the expected influence of major market and policy events, forecasts Account Ownership and Digital Payment Usage for 2025–2027, and presents the results in an interactive Streamlit dashboard.
 
 ## Project Objectives

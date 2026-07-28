@@ -1,158 +1,244 @@
+from pathlib import Path
+
 import pandas as pd
 
 from src.config import (
-    UNIFIED_EXCEL_PATH,
-    REFERENCE_EXCEL_PATH,
-    UNIFIED_CSV_PATH,
-    REFERENCE_CSV_PATH,
+    ACCESS_FORECAST_PATH,
     ENRICHED_DATA_PATH,
+    EVENT_ASSOCIATION_SUMMARY_PATH,
+    FINAL_FORECAST_PATH,
+    FORECAST_UNCERTAINTY_PATH,
+    REFERENCE_CSV_PATH,
+    REFERENCE_EXCEL_PATH,
+    REFINED_EVENT_IMPACTS_PATH,
+    UNIFIED_CSV_PATH,
+    UNIFIED_EXCEL_PATH,
+    USAGE_FORECAST_PATH,
+)
+from src.data_utils import (
+    DataFileNotFoundError,
+    DataValidationError,
+    load_csv,
 )
 
 
-def clean_column_names(df):
-    """
-    Clean dataframe column names.
-    """
+def clean_column_names(
+    dataframe: pd.DataFrame,
+) -> pd.DataFrame:
+    """Return a copy with standardized column names."""
 
-    df = df.copy()
+    result = dataframe.copy()
 
-    df.columns = (
-        df.columns
+    result.columns = (
+        result.columns
+        .astype(str)
         .str.strip()
         .str.lower()
-        .str.replace(" ", "_")
+        .str.replace(" ", "_", regex=False)
     )
 
-    return df
+    return result
 
 
-def convert_excel_files_to_csv():
-    """
-    Read the Excel starter files and save them as CSV files.
-    """
+def load_and_clean_csv(
+    file_path: Path,
+    required: bool = True,
+) -> pd.DataFrame:
+    """Load a CSV and standardize its column names."""
 
-    # Check that the Excel files exist
+    dataframe = load_csv(
+        file_path=file_path,
+        required=required,
+    )
+
+    if dataframe.empty:
+        return dataframe
+
+    return clean_column_names(dataframe)
+
+
+def convert_excel_files_to_csv(
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Convert the project starter Excel files to CSV."""
+
     if not UNIFIED_EXCEL_PATH.exists():
-        raise FileNotFoundError(
+        raise DataFileNotFoundError(
             f"File not found: {UNIFIED_EXCEL_PATH}"
         )
 
     if not REFERENCE_EXCEL_PATH.exists():
-        raise FileNotFoundError(
+        raise DataFileNotFoundError(
             f"File not found: {REFERENCE_EXCEL_PATH}"
         )
 
-    # Read all sheets from the unified workbook
-    workbook = pd.read_excel(
+    workbook: dict[str, pd.DataFrame] = pd.read_excel(
         UNIFIED_EXCEL_PATH,
         sheet_name=None,
     )
 
-    print("Sheets found in unified workbook:")
+    dataframes: list[pd.DataFrame] = []
 
-    dataframes = []
+    for sheet_name, dataframe in workbook.items():
+        cleaned_dataframe = clean_column_names(
+            dataframe
+        )
 
-    for sheet_name, df in workbook.items():
-        print(f"- {sheet_name}: {df.shape}")
+        if "record_type" in cleaned_dataframe.columns:
+            dataframes.append(cleaned_dataframe)
 
-        df = clean_column_names(df)
+        print(
+            f"{sheet_name}: {cleaned_dataframe.shape}"
+        )
 
-        # Include only sheets that contain record_type
-        if "record_type" in df.columns:
-            dataframes.append(df)
+    if not dataframes:
+        raise DataValidationError(
+            "No workbook sheet contains record_type."
+        )
 
-    # Combine the data and impact-link sheets
-    unified_df = pd.concat(
+    unified_dataframe = pd.concat(
         dataframes,
         ignore_index=True,
         sort=False,
+    ).dropna(how="all")
+
+    reference_dataframe = clean_column_names(
+        pd.read_excel(REFERENCE_EXCEL_PATH)
     )
 
-    # Remove completely empty rows
-    unified_df = unified_df.dropna(
-        how="all"
+    UNIFIED_CSV_PATH.parent.mkdir(
+        parents=True,
+        exist_ok=True,
     )
 
-    # Read the reference-code workbook
-    reference_df = pd.read_excel(
-        REFERENCE_EXCEL_PATH
-    )
-
-    reference_df = clean_column_names(
-        reference_df
-    )
-
-    # Save both files as CSV
-    unified_df.to_csv(
+    unified_dataframe.to_csv(
         UNIFIED_CSV_PATH,
         index=False,
     )
 
-    reference_df.to_csv(
+    reference_dataframe.to_csv(
         REFERENCE_CSV_PATH,
         index=False,
     )
 
-    print("\nFiles saved successfully:")
-    print(UNIFIED_CSV_PATH)
-    print(REFERENCE_CSV_PATH)
-
-    return unified_df, reference_df
+    return unified_dataframe, reference_dataframe
 
 
-def load_data():
-    """
-    Load the CSV files used for Task 1.
-    """
+def load_data(
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Load the unified and reference datasets."""
 
-    if not UNIFIED_CSV_PATH.exists():
-        raise FileNotFoundError(
-            "Unified CSV file is missing. "
-            "Run convert_excel_files_to_csv() first."
-        )
-
-    if not REFERENCE_CSV_PATH.exists():
-        raise FileNotFoundError(
-            "Reference-code CSV file is missing. "
-            "Run convert_excel_files_to_csv() first."
-        )
-
-    unified_df = pd.read_csv(
-        UNIFIED_CSV_PATH
+    unified_dataframe = load_and_clean_csv(
+        UNIFIED_CSV_PATH,
+        required=True,
     )
 
-    reference_df = pd.read_csv(
-        REFERENCE_CSV_PATH
+    reference_dataframe = load_and_clean_csv(
+        REFERENCE_CSV_PATH,
+        required=True,
     )
 
-    unified_df = clean_column_names(
-        unified_df
+    return unified_dataframe, reference_dataframe
+
+
+def load_enriched_data(
+    required: bool = True,
+) -> pd.DataFrame:
+    """Load the enriched financial inclusion dataset."""
+
+    return load_and_clean_csv(
+        ENRICHED_DATA_PATH,
+        required=required,
     )
 
-    reference_df = clean_column_names(
-        reference_df
+
+def load_event_impacts(
+    required: bool = False,
+) -> pd.DataFrame:
+    """Load the refined event-impact results."""
+
+    return load_and_clean_csv(
+        REFINED_EVENT_IMPACTS_PATH,
+        required=required,
     )
 
-    return unified_df, reference_df
 
-def load_enriched_data():
-    """
-    Load the processed dataset created during
-    data preparation and enrichment.
-    """
+def load_event_association_summary(
+    required: bool = False,
+) -> pd.DataFrame:
+    """Load the event-indicator association summary."""
 
-    if not ENRICHED_DATA_PATH.exists():
-        raise FileNotFoundError(
-            "The enriched dataset was not found. "
-            "Complete the data-enrichment stage first."
-        )
-
-    enriched_df = pd.read_csv(
-        ENRICHED_DATA_PATH
+    return load_and_clean_csv(
+        EVENT_ASSOCIATION_SUMMARY_PATH,
+        required=required,
     )
 
-    enriched_df = clean_column_names(
-        enriched_df
+
+def load_access_forecasts(
+    required: bool = False,
+) -> pd.DataFrame:
+    """Load Account Ownership forecast scenarios."""
+
+    return load_and_clean_csv(
+        ACCESS_FORECAST_PATH,
+        required=required,
     )
 
-    return enriched_df
+
+def load_usage_forecasts(
+    required: bool = False,
+) -> pd.DataFrame:
+    """Load Digital Payment Usage forecast scenarios."""
+
+    return load_and_clean_csv(
+        USAGE_FORECAST_PATH,
+        required=required,
+    )
+
+
+def load_final_forecasts(
+    required: bool = False,
+) -> pd.DataFrame:
+    """Load the combined final forecast results."""
+
+    return load_and_clean_csv(
+        FINAL_FORECAST_PATH,
+        required=required,
+    )
+
+
+def load_forecast_uncertainty(
+    required: bool = False,
+) -> pd.DataFrame:
+    """Load the forecast uncertainty summary."""
+
+    return load_and_clean_csv(
+        FORECAST_UNCERTAINTY_PATH,
+        required=required,
+    )
+
+
+def load_dashboard_data(
+) -> dict[str, pd.DataFrame]:
+    """Load every dataset used by the dashboard."""
+
+    return {
+        "enriched": load_enriched_data(
+            required=False
+        ),
+        "event_impacts": load_event_impacts(),
+        "association_summary": (
+            load_event_association_summary()
+        ),
+        "access_forecasts": (
+            load_access_forecasts()
+        ),
+        "usage_forecasts": (
+            load_usage_forecasts()
+        ),
+        "final_forecasts": (
+            load_final_forecasts()
+        ),
+        "uncertainty": (
+            load_forecast_uncertainty()
+        ),
+    }

@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -5,7 +6,6 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-
 
 # =========================================================
 # PROJECT PATHS
@@ -15,6 +15,14 @@ DASHBOARD_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = DASHBOARD_DIR.parent
 PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
 
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+
+from src.config import CONFIG
+from src.data_loader import load_dashboard_data
+from src.forecast_utils import calculate_target_gap
 
 # =========================================================
 # PAGE CONFIGURATION
@@ -32,52 +40,16 @@ st.set_page_config(
 # DATA LOADING
 # =========================================================
 
-@st.cache_data
-def load_csv(filename):
-    file_path = PROCESSED_DATA_DIR / filename
-
-    if not file_path.exists():
-        return pd.DataFrame()
-
-    try:
-        return pd.read_csv(file_path)
-
-    except Exception as error:
-        st.error(
-            f"Could not load {filename}: {error}"
-        )
-        return pd.DataFrame()
-
 
 @st.cache_data
-def load_dashboard_data():
-    return {
-        "enriched": load_csv(
-            "ethiopia_fi_enriched.csv"
-        ),
-        "event_impacts": load_csv(
-            "refined_event_impacts.csv"
-        ),
-        "association_summary": load_csv(
-            "event_indicator_association_summary.csv"
-        ),
-        "access_forecasts": load_csv(
-            "access_forecast_scenarios.csv"
-        ),
-        "usage_forecasts": load_csv(
-            "usage_forecast_scenarios.csv"
-        ),
-        "final_forecasts": load_csv(
-            "final_financial_inclusion_forecasts.csv"
-        ),
-        "uncertainty": load_csv(
-            "forecast_uncertainty_summary.csv"
-        ),
-    }
+def get_dashboard_data(
+) -> dict[str, pd.DataFrame]:
+    """Load and cache dashboard data."""
+
+    return load_dashboard_data()
 
 
-data = load_dashboard_data()
-
+data = get_dashboard_data()
 
 # =========================================================
 # DATA PREPARATION HELPERS
@@ -762,7 +734,7 @@ def show_forecasts():
                         "upper_80"
                     ],
                     mode="lines",
-                    line=dict(width=0),
+                    line={"width": 0},
                     showlegend=False,
                 )
             )
@@ -869,14 +841,12 @@ def show_inclusion_projections():
         }
     )
 
-    target_rate = 60.0
+    target_rate = CONFIG.forecast.target_rate
 
-    selected_projection[
-        "remaining_to_target"
-    ] = (
-        target_rate
-        - selected_projection["projection"]
-    ).clip(lower=0)
+    selected_projection["remaining_to_target"] = (
+        selected_projection["projection"]
+        .apply(calculate_target_gap)
+    )
 
     fig = go.Figure()
 
@@ -909,25 +879,41 @@ def show_inclusion_projections():
         use_container_width=True,
     )
 
+    forecast_end_year = CONFIG.forecast.end_year
+
+    latest_projection_rows = selected_projection.loc[
+        selected_projection["year"].eq(
+            forecast_end_year
+        ),
+        "projection",
+    ]
+
+    if latest_projection_rows.empty:
+        st.warning(
+            f"No projection is available for "
+            f"{forecast_end_year}."
+        )
+        return
+
     latest_projection = float(
-        selected_projection.loc[
-            selected_projection["year"] == 2027,
-            "projection",
-        ].iloc[0]
+        latest_projection_rows.iloc[0]
     )
 
-    remaining_gap = target_rate - latest_projection
+    remaining_gap = calculate_target_gap(
+        projection=latest_projection,
+        target_rate=target_rate,
+    )
 
     col1, col2, col3 = st.columns(3)
 
     col1.metric(
-        "2027 projection",
-        f"{latest_projection:.1f}%",
+    f"{forecast_end_year} projection",
+    f"{latest_projection:.1f}%",
     )
 
     col2.metric(
         "Target",
-        "60.0%",
+        f"{target_rate:.1f}%",
     )
 
     col3.metric(
