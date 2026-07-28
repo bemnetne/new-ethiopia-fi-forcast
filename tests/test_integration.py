@@ -12,41 +12,37 @@ def test_event_and_forecast_workflow(
 ) -> None:
     event_path = tmp_path / "events.csv"
 
-    event_data = pd.DataFrame({
-        "Impact Direction": [
-            "increase",
-            "decrease",
-        ],
-        "Impact Magnitude": [
-            "high",
-            "low",
-        ],
-    })
+    event_data = pd.DataFrame(
+        {
+            "Impact Direction": [
+                "increase",
+                "decrease",
+            ],
+            "Impact Magnitude": [
+                "high",
+                "low",
+            ],
+        }
+    )
 
     event_data.to_csv(
         event_path,
         index=False,
     )
 
-    loaded_events = load_and_clean_csv(
-        event_path
+    loaded_events = load_and_clean_csv(event_path)
+
+    scored_events = add_effect_scores(loaded_events)
+
+    assert scored_events["signed_effect_score"].tolist() == [3, -1]
+
+    forecast_data = pd.DataFrame(
+        {
+            "year": [2025, 2026, 2027],
+            "pessimistic": [49.5, 50.0, 50.5],
+            "base": [50.3, 51.7, 53.2],
+            "optimistic": [50.5, 52.0, 53.5],
+        }
     )
 
-    scored_events = add_effect_scores(
-        loaded_events
-    )
-
-    assert scored_events[
-        "signed_effect_score"
-    ].tolist() == [3, -1]
-
-    forecast_data = pd.DataFrame({
-        "year": [2025, 2026, 2027],
-        "pessimistic": [49.5, 50.0, 50.5],
-        "base": [50.3, 51.7, 53.2],
-        "optimistic": [50.5, 52.0, 53.5],
-    })
-
-    validate_forecast_bounds(
-        forecast_data
-    )
+    validate_forecast_bounds(forecast_data)

@@ -34,9 +34,7 @@ def load_csv(
 
     if not file_path.exists():
         if required:
-            raise DataFileNotFoundError(
-                f"Required file was not found: {file_path}"
-            )
+            raise DataFileNotFoundError(f"Required file was not found: {file_path}")
 
         return pd.DataFrame()
 
@@ -44,9 +42,7 @@ def load_csv(
         return pd.read_csv(file_path)
 
     except pd.errors.EmptyDataError as error:
-        raise DataValidationError(
-            f"The file is empty: {file_path}"
-        ) from error
+        raise DataValidationError(f"The file is empty: {file_path}") from error
 
     except pd.errors.ParserError as error:
         raise DataValidationError(
@@ -68,15 +64,12 @@ def validate_required_columns(
     """
 
     missing_columns = [
-        column
-        for column in required_columns
-        if column not in dataframe.columns
+        column for column in required_columns if column not in dataframe.columns
     ]
 
     if missing_columns:
         raise DataValidationError(
-            "Missing required columns: "
-            + ", ".join(missing_columns)
+            "Missing required columns: " + ", ".join(missing_columns)
         )
 
 
@@ -87,9 +80,7 @@ def validate_not_empty(
     """Confirm that a DataFrame contains at least one row."""
 
     if dataframe.empty:
-        raise DataValidationError(
-            f"{dataset_name} contains no records."
-        )
+        raise DataValidationError(f"{dataset_name} contains no records.")
 
 
 def convert_to_datetime(

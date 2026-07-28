@@ -4,6 +4,9 @@ import pandas as pd
 
 from src.config import (
     ACCESS_FORECAST_PATH,
+    ACCESS_SHAP_DIAGNOSTICS_PATH,
+    ACCESS_SHAP_GLOBAL_PATH,
+    ACCESS_SHAP_LOCAL_PATH,
     ENRICHED_DATA_PATH,
     EVENT_ASSOCIATION_SUMMARY_PATH,
     FINAL_FORECAST_PATH,
@@ -30,8 +33,7 @@ def clean_column_names(
     result = dataframe.copy()
 
     result.columns = (
-        result.columns
-        .astype(str)
+        result.columns.astype(str)
         .str.strip()
         .str.lower()
         .str.replace(" ", "_", regex=False)
@@ -57,19 +59,14 @@ def load_and_clean_csv(
     return clean_column_names(dataframe)
 
 
-def convert_excel_files_to_csv(
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+def convert_excel_files_to_csv() -> tuple[pd.DataFrame, pd.DataFrame]:
     """Convert the project starter Excel files to CSV."""
 
     if not UNIFIED_EXCEL_PATH.exists():
-        raise DataFileNotFoundError(
-            f"File not found: {UNIFIED_EXCEL_PATH}"
-        )
+        raise DataFileNotFoundError(f"File not found: {UNIFIED_EXCEL_PATH}")
 
     if not REFERENCE_EXCEL_PATH.exists():
-        raise DataFileNotFoundError(
-            f"File not found: {REFERENCE_EXCEL_PATH}"
-        )
+        raise DataFileNotFoundError(f"File not found: {REFERENCE_EXCEL_PATH}")
 
     workbook: dict[str, pd.DataFrame] = pd.read_excel(
         UNIFIED_EXCEL_PATH,
@@ -79,21 +76,15 @@ def convert_excel_files_to_csv(
     dataframes: list[pd.DataFrame] = []
 
     for sheet_name, dataframe in workbook.items():
-        cleaned_dataframe = clean_column_names(
-            dataframe
-        )
+        cleaned_dataframe = clean_column_names(dataframe)
 
         if "record_type" in cleaned_dataframe.columns:
             dataframes.append(cleaned_dataframe)
 
-        print(
-            f"{sheet_name}: {cleaned_dataframe.shape}"
-        )
+        print(f"{sheet_name}: {cleaned_dataframe.shape}")
 
     if not dataframes:
-        raise DataValidationError(
-            "No workbook sheet contains record_type."
-        )
+        raise DataValidationError("No workbook sheet contains record_type.")
 
     unified_dataframe = pd.concat(
         dataframes,
@@ -101,9 +92,7 @@ def convert_excel_files_to_csv(
         sort=False,
     ).dropna(how="all")
 
-    reference_dataframe = clean_column_names(
-        pd.read_excel(REFERENCE_EXCEL_PATH)
-    )
+    reference_dataframe = clean_column_names(pd.read_excel(REFERENCE_EXCEL_PATH))
 
     UNIFIED_CSV_PATH.parent.mkdir(
         parents=True,
@@ -123,8 +112,7 @@ def convert_excel_files_to_csv(
     return unified_dataframe, reference_dataframe
 
 
-def load_data(
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load the unified and reference datasets."""
 
     unified_dataframe = load_and_clean_csv(
@@ -217,28 +205,18 @@ def load_forecast_uncertainty(
     )
 
 
-def load_dashboard_data(
-) -> dict[str, pd.DataFrame]:
+def load_dashboard_data() -> dict[str, pd.DataFrame]:
     """Load every dataset used by the dashboard."""
 
     return {
-        "enriched": load_enriched_data(
-            required=False
-        ),
+        "access_shap_global": load_csv(ACCESS_SHAP_GLOBAL_PATH),
+        "access_shap_local": load_csv(ACCESS_SHAP_LOCAL_PATH),
+        "access_shap_diagnostics": load_csv(ACCESS_SHAP_DIAGNOSTICS_PATH),
+        "enriched": load_enriched_data(required=False),
         "event_impacts": load_event_impacts(),
-        "association_summary": (
-            load_event_association_summary()
-        ),
-        "access_forecasts": (
-            load_access_forecasts()
-        ),
-        "usage_forecasts": (
-            load_usage_forecasts()
-        ),
-        "final_forecasts": (
-            load_final_forecasts()
-        ),
-        "uncertainty": (
-            load_forecast_uncertainty()
-        ),
+        "association_summary": (load_event_association_summary()),
+        "access_forecasts": (load_access_forecasts()),
+        "usage_forecasts": (load_usage_forecasts()),
+        "final_forecasts": (load_final_forecasts()),
+        "uncertainty": (load_forecast_uncertainty()),
     }

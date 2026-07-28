@@ -9,20 +9,11 @@ def prepare_access_observations(df):
     their dates and years.
     """
 
-    observations = df[
-        df["record_type"] == "observation"
-    ].copy()
+    observations = df[df["record_type"] == "observation"].copy()
 
-    observations["observation_date"] = (
-        parse_dates(
-            observations["observation_date"]
-        )
-    )
+    observations["observation_date"] = parse_dates(observations["observation_date"])
 
-    observations["year"] = (
-        observations["observation_date"]
-        .dt.year
-    )
+    observations["year"] = observations["observation_date"].dt.year
 
     return observations
 
@@ -35,31 +26,16 @@ def get_account_ownership_trajectory(df):
     the national trajectory.
     """
 
-    observations = prepare_access_observations(
-        df
-    )
+    observations = prepare_access_observations(df)
 
-    gender = (
-        observations["gender"]
-        .fillna("all")
-        .astype(str)
-        .str.lower()
-        .str.strip()
-    )
+    gender = observations["gender"].fillna("all").astype(str).str.lower().str.strip()
 
     location = (
-        observations["location"]
-        .fillna("national")
-        .astype(str)
-        .str.lower()
-        .str.strip()
+        observations["location"].fillna("national").astype(str).str.lower().str.strip()
     )
 
     ownership = observations[
-        (
-            observations["indicator_code"]
-            == "ACC_OWNERSHIP"
-        )
+        (observations["indicator_code"] == "ACC_OWNERSHIP")
         & (gender == "all")
         & (location == "national")
     ].copy()
@@ -81,9 +57,7 @@ def get_account_ownership_trajectory(df):
         }
     )
 
-    ownership = ownership.sort_values(
-        "year"
-    ).reset_index(drop=True)
+    ownership = ownership.sort_values("year").reset_index(drop=True)
 
     return ownership
 
@@ -97,52 +71,31 @@ def calculate_ownership_growth(
 
     growth = ownership_df.copy()
 
-    growth["previous_year"] = (
-        growth["year"].shift(1)
-    )
+    growth["previous_year"] = growth["year"].shift(1)
 
-    growth["previous_rate"] = (
-        growth["ownership_rate"].shift(1)
-    )
+    growth["previous_rate"] = growth["ownership_rate"].shift(1)
 
-    growth["years_between"] = (
-        growth["year"]
-        - growth["previous_year"]
-    )
+    growth["years_between"] = growth["year"] - growth["previous_year"]
 
     growth["percentage_point_change"] = (
-        growth["ownership_rate"]
-        - growth["previous_rate"]
+        growth["ownership_rate"] - growth["previous_rate"]
     )
 
     growth["annual_pp_change"] = (
-        growth["percentage_point_change"]
-        / growth["years_between"]
+        growth["percentage_point_change"] / growth["years_between"]
     )
 
     growth["relative_growth_percent"] = (
-        (
-            growth["ownership_rate"]
-            / growth["previous_rate"]
-            - 1
-        )
-        * 100
-    )
+        growth["ownership_rate"] / growth["previous_rate"] - 1
+    ) * 100
 
     growth["period"] = (
-        growth["previous_year"]
-        .fillna(0)
-        .astype(int)
-        .astype(str)
+        growth["previous_year"].fillna(0).astype(int).astype(str)
         + "-"
-        + growth["year"]
-        .astype(int)
-        .astype(str)
+        + growth["year"].astype(int).astype(str)
     )
 
-    growth = growth.dropna(
-        subset=["previous_rate"]
-    ).reset_index(drop=True)
+    growth = growth.dropna(subset=["previous_rate"]).reset_index(drop=True)
 
     growth[
         [
@@ -169,9 +122,7 @@ def plot_account_ownership(
     Plot Ethiopia's national account ownership rate.
     """
 
-    fig, ax = plt.subplots(
-        figsize=(9, 5)
-    )
+    fig, ax = plt.subplots(figsize=(9, 5))
 
     ax.plot(
         ownership_df["year"],
@@ -183,25 +134,20 @@ def plot_account_ownership(
         ax.text(
             row["year"],
             row["ownership_rate"] + 1,
-            f'{row["ownership_rate"]:.0f}%',
+            f"{row['ownership_rate']:.0f}%",
             ha="center",
         )
 
-    ax.set_title(
-        "Ethiopia Account Ownership Rate, 2011–2024"
-    )
+    ax.set_title("Ethiopia Account Ownership Rate, 2011–2024")
 
     ax.set_xlabel("Survey year")
     ax.set_ylabel("Account ownership rate (%)")
 
-    ax.set_xticks(
-        ownership_df["year"]
-    )
+    ax.set_xticks(ownership_df["year"])
 
     ax.set_ylim(
         0,
-        ownership_df["ownership_rate"].max()
-        + 10,
+        ownership_df["ownership_rate"].max() + 10,
     )
 
     ax.grid(
@@ -234,9 +180,7 @@ def plot_ownership_growth(
     Plot percentage-point growth between surveys.
     """
 
-    fig, ax = plt.subplots(
-        figsize=(9, 5)
-    )
+    fig, ax = plt.subplots(figsize=(9, 5))
 
     bars = ax.bar(
         growth_df["period"],
@@ -248,16 +192,13 @@ def plot_ownership_growth(
         growth_df["percentage_point_change"],
     ):
         ax.text(
-            bar.get_x()
-            + bar.get_width() / 2,
+            bar.get_x() + bar.get_width() / 2,
             bar.get_height() + 0.3,
             f"{value:+.0f} pp",
             ha="center",
         )
 
-    ax.set_title(
-        "Change in Account Ownership Between Survey Years"
-    )
+    ax.set_title("Change in Account Ownership Between Survey Years")
 
     ax.set_xlabel("Survey period")
     ax.set_ylabel("Percentage-point change")
@@ -290,27 +231,15 @@ def get_gender_ownership(df):
     observations when available.
     """
 
-    observations = prepare_access_observations(
-        df
-    )
+    observations = prepare_access_observations(df)
 
     observations["gender_clean"] = (
-        observations["gender"]
-        .fillna("")
-        .astype(str)
-        .str.lower()
-        .str.strip()
+        observations["gender"].fillna("").astype(str).str.lower().str.strip()
     )
 
     gender_data = observations[
-        (
-            observations["indicator_code"]
-            == "ACC_OWNERSHIP"
-        )
-        & (
-            observations["gender_clean"]
-            .isin(["male", "female"])
-        )
+        (observations["indicator_code"] == "ACC_OWNERSHIP")
+        & (observations["gender_clean"].isin(["male", "female"]))
     ].copy()
 
     gender_data = gender_data[
@@ -357,9 +286,7 @@ def plot_gender_ownership(
         figsize=(8, 5),
     )
 
-    ax.set_title(
-        "Account Ownership by Gender"
-    )
+    ax.set_title("Account Ownership by Gender")
 
     ax.set_xlabel("Survey year")
     ax.set_ylabel("Account ownership rate (%)")
@@ -369,9 +296,7 @@ def plot_gender_ownership(
         rotation=0,
     )
 
-    ax.legend(
-        title="Gender"
-    )
+    ax.legend(title="Gender")
 
     ax.grid(
         axis="y",
@@ -403,14 +328,9 @@ def get_gender_gap_trend(df):
     gender-gap indicator.
     """
 
-    observations = prepare_access_observations(
-        df
-    )
+    observations = prepare_access_observations(df)
 
-    gender_gap = observations[
-        observations["indicator_code"]
-        == "GEN_GAP_ACC"
-    ].copy()
+    gender_gap = observations[observations["indicator_code"] == "GEN_GAP_ACC"].copy()
 
     gender_gap = gender_gap[
         [
@@ -428,9 +348,7 @@ def get_gender_gap_trend(df):
         }
     )
 
-    return gender_gap.sort_values(
-        "year"
-    ).reset_index(drop=True)
+    return gender_gap.sort_values("year").reset_index(drop=True)
 
 
 def plot_gender_gap(
@@ -441,9 +359,7 @@ def plot_gender_gap(
     Plot the account ownership gender gap.
     """
 
-    fig, ax = plt.subplots(
-        figsize=(8, 5)
-    )
+    fig, ax = plt.subplots(figsize=(8, 5))
 
     ax.plot(
         gender_gap_df["year"],
@@ -455,20 +371,16 @@ def plot_gender_gap(
         ax.text(
             row["year"],
             row["gender_gap"] + 0.5,
-            f'{row["gender_gap"]:.1f} pp',
+            f"{row['gender_gap']:.1f} pp",
             ha="center",
         )
 
-    ax.set_title(
-        "Account Ownership Gender Gap"
-    )
+    ax.set_title("Account Ownership Gender Gap")
 
     ax.set_xlabel("Year")
     ax.set_ylabel("Gender gap, percentage points")
 
-    ax.set_xticks(
-        gender_gap_df["year"]
-    )
+    ax.set_xticks(gender_gap_df["year"])
 
     ax.grid(
         axis="y",
@@ -498,27 +410,15 @@ def get_urban_rural_ownership(df):
     observations when available.
     """
 
-    observations = prepare_access_observations(
-        df
-    )
+    observations = prepare_access_observations(df)
 
     observations["location_clean"] = (
-        observations["location"]
-        .fillna("")
-        .astype(str)
-        .str.lower()
-        .str.strip()
+        observations["location"].fillna("").astype(str).str.lower().str.strip()
     )
 
     location_data = observations[
-        (
-            observations["indicator_code"]
-            == "ACC_OWNERSHIP"
-        )
-        & (
-            observations["location_clean"]
-            .isin(["urban", "rural"])
-        )
+        (observations["indicator_code"] == "ACC_OWNERSHIP")
+        & (observations["location_clean"].isin(["urban", "rural"]))
     ].copy()
 
     location_data = location_data[
@@ -565,9 +465,7 @@ def plot_urban_rural_ownership(
         figsize=(8, 5),
     )
 
-    ax.set_title(
-        "Account Ownership by Location"
-    )
+    ax.set_title("Account Ownership by Location")
 
     ax.set_xlabel("Survey year")
     ax.set_ylabel("Account ownership rate (%)")
@@ -577,9 +475,7 @@ def plot_urban_rural_ownership(
         rotation=0,
     )
 
-    ax.legend(
-        title="Location"
-    )
+    ax.legend(title="Location")
 
     ax.grid(
         axis="y",
@@ -611,56 +507,26 @@ def get_slowdown_context(df):
     the 2021–2024 account ownership slowdown.
     """
 
-    observations = prepare_access_observations(
-        df
-    )
+    observations = prepare_access_observations(df)
 
     indicator_roles = {
-        "ACC_MM_ACCOUNT":
-            "Direct mobile money access",
-
-        "USG_TELEBIRR_USERS":
-            "Registered wallet scale",
-
-        "USG_MPESA_USERS":
-            "Registered wallet scale",
-
-        "USG_ACTIVE_RATE":
-            "Registered-to-active conversion",
-
-        "USG_SECTOR_ACTIVE_ACCOUNT_RATE":
-            "Registered-to-active conversion",
-
-        "ACC_4G_COV":
-            "Digital infrastructure",
-
-        "ACC_FAYDA":
-            "Identification and KYC",
-
-        "GEN_GAP_ACC":
-            "Unequal access",
-
-        "AFF_DATA_INCOME":
-            "Affordability constraint",
-
-        "ACC_TELEBIRR_AGENTS":
-            "Physical service reach",
-
-        "USG_TELEBIRR_MERCHANTS":
-            "Merchant acceptance",
-
-        "USG_DIGITAL_PAYMENT_RATE":
-            "Actual digital usage",
+        "ACC_MM_ACCOUNT": "Direct mobile money access",
+        "USG_TELEBIRR_USERS": "Registered wallet scale",
+        "USG_MPESA_USERS": "Registered wallet scale",
+        "USG_ACTIVE_RATE": "Registered-to-active conversion",
+        "USG_SECTOR_ACTIVE_ACCOUNT_RATE": "Registered-to-active conversion",
+        "ACC_4G_COV": "Digital infrastructure",
+        "ACC_FAYDA": "Identification and KYC",
+        "GEN_GAP_ACC": "Unequal access",
+        "AFF_DATA_INCOME": "Affordability constraint",
+        "ACC_TELEBIRR_AGENTS": "Physical service reach",
+        "USG_TELEBIRR_MERCHANTS": "Merchant acceptance",
+        "USG_DIGITAL_PAYMENT_RATE": "Actual digital usage",
     }
 
-    selected_codes = list(
-        indicator_roles.keys()
-    )
+    selected_codes = list(indicator_roles.keys())
 
-    context = observations[
-        observations["indicator_code"]
-        .isin(selected_codes)
-    ].copy()
+    context = observations[observations["indicator_code"].isin(selected_codes)].copy()
 
     context = context.sort_values(
         [
@@ -670,8 +536,7 @@ def get_slowdown_context(df):
     )
 
     latest_context = (
-        context
-        .groupby(
+        context.groupby(
             "indicator_code",
             as_index=False,
         )
@@ -679,9 +544,8 @@ def get_slowdown_context(df):
         .copy()
     )
 
-    latest_context["possible_role"] = (
-        latest_context["indicator_code"]
-        .map(indicator_roles)
+    latest_context["possible_role"] = latest_context["indicator_code"].map(
+        indicator_roles
     )
 
     latest_context = latest_context[
@@ -714,20 +578,11 @@ def get_access_event_timeline(
     slowdown period.
     """
 
-    events = df[
-        df["record_type"] == "event"
-    ].copy()
+    events = df[df["record_type"] == "event"].copy()
 
-    events["observation_date"] = (
-        parse_dates(
-            events["observation_date"]
-        )
-    )
+    events["observation_date"] = parse_dates(events["observation_date"])
 
-    events["year"] = (
-        events["observation_date"]
-        .dt.year
-    )
+    events["year"] = events["observation_date"].dt.year
 
     events = events[
         events["year"].between(
@@ -736,15 +591,17 @@ def get_access_event_timeline(
         )
     ]
 
-    return events[
-        [
-            "record_id",
-            "year",
-            "observation_date",
-            "category",
-            "indicator",
-            "confidence",
+    return (
+        events[
+            [
+                "record_id",
+                "year",
+                "observation_date",
+                "category",
+                "indicator",
+                "confidence",
+            ]
         ]
-    ].sort_values(
-        "observation_date"
-    ).reset_index(drop=True)
+        .sort_values("observation_date")
+        .reset_index(drop=True)
+    )

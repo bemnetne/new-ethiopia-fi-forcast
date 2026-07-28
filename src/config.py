@@ -19,64 +19,42 @@ DASHBOARD_DIR = PROJECT_ROOT / "dashboard"
 # RAW DATA FILES
 # =========================================================
 
-UNIFIED_EXCEL_PATH = (
-    RAW_DATA_DIR / "ethiopia_fi_unified_data.xlsx"
-)
+UNIFIED_EXCEL_PATH = RAW_DATA_DIR / "ethiopia_fi_unified_data.xlsx"
 
-REFERENCE_EXCEL_PATH = (
-    RAW_DATA_DIR / "reference_codes.xlsx"
-)
+REFERENCE_EXCEL_PATH = RAW_DATA_DIR / "reference_codes.xlsx"
 
-UNIFIED_CSV_PATH = (
-    RAW_DATA_DIR / "ethiopia_fi_unified_data.csv"
-)
+UNIFIED_CSV_PATH = RAW_DATA_DIR / "ethiopia_fi_unified_data.csv"
 
-REFERENCE_CSV_PATH = (
-    RAW_DATA_DIR / "reference_codes.csv"
-)
+REFERENCE_CSV_PATH = RAW_DATA_DIR / "reference_codes.csv"
 
-ENRICHMENT_CSV_PATH = (
-    RAW_DATA_DIR / "enrichment_records.csv"
-)
+ENRICHMENT_CSV_PATH = RAW_DATA_DIR / "enrichment_records.csv"
 
 
 # =========================================================
 # PROCESSED DATA FILES
 # =========================================================
 
-ENRICHED_DATA_PATH = (
-    PROCESSED_DATA_DIR / "ethiopia_fi_enriched.csv"
-)
+ENRICHED_DATA_PATH = PROCESSED_DATA_DIR / "ethiopia_fi_enriched.csv"
 
-REFINED_EVENT_IMPACTS_PATH = (
-    PROCESSED_DATA_DIR / "refined_event_impacts.csv"
-)
+REFINED_EVENT_IMPACTS_PATH = PROCESSED_DATA_DIR / "refined_event_impacts.csv"
 
 EVENT_ASSOCIATION_SUMMARY_PATH = (
-    PROCESSED_DATA_DIR
-    / "event_indicator_association_summary.csv"
+    PROCESSED_DATA_DIR / "event_indicator_association_summary.csv"
 )
 
-ACCESS_FORECAST_PATH = (
-    PROCESSED_DATA_DIR
-    / "access_forecast_scenarios.csv"
-)
+ACCESS_FORECAST_PATH = PROCESSED_DATA_DIR / "access_forecast_scenarios.csv"
 
-USAGE_FORECAST_PATH = (
-    PROCESSED_DATA_DIR
-    / "usage_forecast_scenarios.csv"
-)
+USAGE_FORECAST_PATH = PROCESSED_DATA_DIR / "usage_forecast_scenarios.csv"
 
-FINAL_FORECAST_PATH = (
-    PROCESSED_DATA_DIR
-    / "final_financial_inclusion_forecasts.csv"
-)
+FINAL_FORECAST_PATH = PROCESSED_DATA_DIR / "final_financial_inclusion_forecasts.csv"
 
-FORECAST_UNCERTAINTY_PATH = (
-    PROCESSED_DATA_DIR
-    / "forecast_uncertainty_summary.csv"
-)
+FORECAST_UNCERTAINTY_PATH = PROCESSED_DATA_DIR / "forecast_uncertainty_summary.csv"
 
+ACCESS_SHAP_GLOBAL_PATH = PROCESSED_DATA_DIR / "access_shap_global.csv"
+
+ACCESS_SHAP_LOCAL_PATH = PROCESSED_DATA_DIR / "access_shap_local.csv"
+
+ACCESS_SHAP_DIAGNOSTICS_PATH = PROCESSED_DATA_DIR / "access_shap_diagnostics.csv"
 
 # =========================================================
 # BUSINESS CONSTANTS
@@ -115,6 +93,7 @@ MAGNITUDE_SCORES: dict[str, int] = {
 # =========================================================
 # CONFIGURATION DATACLASSES
 # =========================================================
+
 
 @dataclass(frozen=True)
 class ForecastConfig:
