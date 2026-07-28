@@ -8,18 +8,11 @@ def prepare_usage_data(df):
     Select observation records and create a year column.
     """
 
-    observations = df[
-        df["record_type"] == "observation"
-    ].copy()
+    observations = df[df["record_type"] == "observation"].copy()
 
-    observations["observation_date"] = parse_dates(
-        observations["observation_date"]
-    )
+    observations["observation_date"] = parse_dates(observations["observation_date"])
 
-    observations["year"] = (
-        observations["observation_date"]
-        .dt.year
-    )
+    observations["year"] = observations["observation_date"].dt.year
 
     observations["value_numeric"] = pd.to_numeric(
         observations["value_numeric"],
@@ -36,10 +29,7 @@ def get_indicator_series(df, indicator_code):
 
     observations = prepare_usage_data(df)
 
-    data = observations[
-        observations["indicator_code"]
-        == indicator_code
-    ].copy()
+    data = observations[observations["indicator_code"] == indicator_code].copy()
 
     columns = [
         "year",
@@ -50,11 +40,7 @@ def get_indicator_series(df, indicator_code):
         "confidence",
     ]
 
-    return (
-        data[columns]
-        .sort_values("year")
-        .reset_index(drop=True)
-    )
+    return data[columns].sort_values("year").reset_index(drop=True)
 
 
 def get_registered_active_gap(df):
@@ -65,9 +51,7 @@ def get_registered_active_gap(df):
     registered = get_indicator_series(
         df,
         "USG_MPESA_USERS",
-    )[
-        ["year", "value_numeric"]
-    ].rename(
+    )[["year", "value_numeric"]].rename(
         columns={
             "value_numeric": "registered_users",
         }
@@ -76,9 +60,7 @@ def get_registered_active_gap(df):
     active = get_indicator_series(
         df,
         "USG_MPESA_ACTIVE",
-    )[
-        ["year", "value_numeric"]
-    ].rename(
+    )[["year", "value_numeric"]].rename(
         columns={
             "value_numeric": "active_users",
         }
@@ -90,15 +72,10 @@ def get_registered_active_gap(df):
         how="inner",
     )
 
-    gap["inactive_users"] = (
-        gap["registered_users"]
-        - gap["active_users"]
-    )
+    gap["inactive_users"] = gap["registered_users"] - gap["active_users"]
 
     gap["calculated_active_rate"] = (
-        gap["active_users"]
-        / gap["registered_users"]
-        * 100
+        gap["active_users"] / gap["registered_users"] * 100
     ).round(1)
 
     return gap
@@ -117,32 +94,27 @@ def get_transaction_counts(df):
         "USG_POS_COUNT": "Merchant/POS",
     }
 
-    data = observations[
-        observations["indicator_code"]
-        .isin(indicator_names)
-    ].copy()
+    data = observations[observations["indicator_code"].isin(indicator_names)].copy()
 
-    data["payment_channel"] = (
-        data["indicator_code"]
-        .map(indicator_names)
-    )
+    data["payment_channel"] = data["indicator_code"].map(indicator_names)
 
-    data["transactions_millions"] = (
-        data["value_numeric"]
-        / 1_000_000
-    )
+    data["transactions_millions"] = data["value_numeric"] / 1_000_000
 
-    return data[
-        [
-            "year",
-            "payment_channel",
-            "value_numeric",
-            "transactions_millions",
-            "confidence",
+    return (
+        data[
+            [
+                "year",
+                "payment_channel",
+                "value_numeric",
+                "transactions_millions",
+                "confidence",
+            ]
         ]
-    ].sort_values(
-        [
-            "year",
-            "payment_channel",
-        ]
-    ).reset_index(drop=True)
+        .sort_values(
+            [
+                "year",
+                "payment_channel",
+            ]
+        )
+        .reset_index(drop=True)
+    )

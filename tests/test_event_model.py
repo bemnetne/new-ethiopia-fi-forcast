@@ -8,8 +8,7 @@ from src.event_model import (
 )
 
 
-def test_high_increase_score_is_positive_three(
-) -> None:
+def test_high_increase_score_is_positive_three() -> None:
     result = calculate_effect_score(
         direction="increase",
         magnitude="high",
@@ -18,8 +17,7 @@ def test_high_increase_score_is_positive_three(
     assert result == 3
 
 
-def test_medium_decrease_score_is_negative_two(
-) -> None:
+def test_medium_decrease_score_is_negative_two() -> None:
     result = calculate_effect_score(
         direction="decrease",
         magnitude="medium",
@@ -28,8 +26,7 @@ def test_medium_decrease_score_is_negative_two(
     assert result == -2
 
 
-def test_invalid_direction_raises_error(
-) -> None:
+def test_invalid_direction_raises_error() -> None:
     with pytest.raises(DataValidationError):
         calculate_effect_score(
             direction="unknown",
@@ -37,12 +34,13 @@ def test_invalid_direction_raises_error(
         )
 
 
-def test_add_effect_scores_preserves_original_dataframe(
-) -> None:
-    source = pd.DataFrame({
-        "impact_direction": ["increase"],
-        "impact_magnitude": ["medium"],
-    })
+def test_add_effect_scores_preserves_original_dataframe() -> None:
+    source = pd.DataFrame(
+        {
+            "impact_direction": ["increase"],
+            "impact_magnitude": ["medium"],
+        }
+    )
 
     result = add_effect_scores(source)
 

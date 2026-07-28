@@ -1,0 +1,2 @@
+pattern,severity,feature,detail
+No automatic warning triggered,information,All features,The automatic concentration and correlation checks did not identify a major warning. Manual review is still required.

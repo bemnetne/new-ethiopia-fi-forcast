@@ -14,11 +14,7 @@ def count_records(df, column):
     values = values.astype(str).str.strip()
     values = values.replace("", "Not assigned")
 
-    counts = (
-        values
-        .value_counts()
-        .reset_index()
-    )
+    counts = values.value_counts().reset_index()
 
     counts.columns = [
         column,
@@ -58,9 +54,7 @@ def parse_dates(date_column):
     )
 
     # Use normal dates first, then Excel dates
-    final_dates = normal_dates.fillna(
-        excel_dates
-    )
+    final_dates = normal_dates.fillna(excel_dates)
 
     return final_dates
 
@@ -70,28 +64,20 @@ def get_observation_date_range(df):
     Summarize the temporal coverage of observation records.
     """
 
-    observations = df[
-        df["record_type"] == "observation"
-    ].copy()
+    observations = df[df["record_type"] == "observation"].copy()
 
-    observations["observation_date"] = parse_dates(
-        observations["observation_date"]
+    observations["observation_date"] = parse_dates(observations["observation_date"])
+
+    date_summary = pd.DataFrame(
+        {
+            "first_observation": [observations["observation_date"].min()],
+            "last_observation": [observations["observation_date"].max()],
+            "observations_with_dates": [observations["observation_date"].notna().sum()],
+            "observations_without_dates": [
+                observations["observation_date"].isna().sum()
+            ],
+        }
     )
-
-    date_summary = pd.DataFrame({
-        "first_observation": [
-            observations["observation_date"].min()
-        ],
-        "last_observation": [
-            observations["observation_date"].max()
-        ],
-        "observations_with_dates": [
-            observations["observation_date"].notna().sum()
-        ],
-        "observations_without_dates": [
-            observations["observation_date"].isna().sum()
-        ],
-    })
 
     return date_summary
 
@@ -101,22 +87,14 @@ def get_indicator_coverage(df):
     Show the historical coverage of every observation indicator.
     """
 
-    observations = df[
-        df["record_type"] == "observation"
-    ].copy()
+    observations = df[df["record_type"] == "observation"].copy()
 
-    observations["observation_date"] = parse_dates(
-        observations["observation_date"]
-    )
+    observations["observation_date"] = parse_dates(observations["observation_date"])
 
-    observations["year"] = (
-        observations["observation_date"]
-        .dt.year
-    )
+    observations["year"] = observations["observation_date"].dt.year
 
     coverage = (
-        observations
-        .groupby(
+        observations.groupby(
             [
                 "indicator_code",
                 "indicator",
@@ -140,12 +118,7 @@ def get_indicator_coverage(df):
             years_covered=(
                 "year",
                 lambda values: ", ".join(
-                    str(year)
-                    for year in sorted(
-                        values.dropna()
-                        .astype(int)
-                        .unique()
-                    )
+                    str(year) for year in sorted(values.dropna().astype(int).unique())
                 ),
             ),
             source_count=(
@@ -154,13 +127,7 @@ def get_indicator_coverage(df):
             ),
             source_types=(
                 "source_type",
-                lambda values: ", ".join(
-                    sorted(
-                        values.dropna()
-                        .astype(str)
-                        .unique()
-                    )
-                ),
+                lambda values: ", ".join(sorted(values.dropna().astype(str).unique())),
             ),
         )
         .reset_index()
@@ -181,13 +148,9 @@ def get_event_catalog(df):
     Return all catalogued events and their dates.
     """
 
-    events = df[
-        df["record_type"] == "event"
-    ].copy()
+    events = df[df["record_type"] == "event"].copy()
 
-    events["observation_date"] = parse_dates(
-        events["observation_date"]
-    )
+    events["observation_date"] = parse_dates(events["observation_date"])
 
     selected_columns = [
         "record_id",
@@ -199,11 +162,9 @@ def get_event_catalog(df):
         "confidence",
     ]
 
-    events = events[
-        selected_columns
-    ].sort_values(
-        "observation_date"
-    ).reset_index(drop=True)
+    events = (
+        events[selected_columns].sort_values("observation_date").reset_index(drop=True)
+    )
 
     return events
 
@@ -213,13 +174,9 @@ def get_impact_link_details(df):
     Connect impact-link records to their parent events.
     """
 
-    impact_links = df[
-        df["record_type"] == "impact_link"
-    ].copy()
+    impact_links = df[df["record_type"] == "impact_link"].copy()
 
-    events = df[
-        df["record_type"] == "event"
-    ][
+    events = df[df["record_type"] == "event"][
         [
             "record_id",
             "indicator",
@@ -228,9 +185,7 @@ def get_impact_link_details(df):
         ]
     ].copy()
 
-    events["observation_date"] = parse_dates(
-        events["observation_date"]
-    )
+    events["observation_date"] = parse_dates(events["observation_date"])
 
     events = events.rename(
         columns={
@@ -266,14 +221,16 @@ def get_impact_link_details(df):
         "confidence",
     ]
 
-    impact_details = impact_details[
-        selected_columns
-    ].sort_values(
-        [
-            "event_date",
-            "record_id",
-        ]
-    ).reset_index(drop=True)
+    impact_details = (
+        impact_details[selected_columns]
+        .sort_values(
+            [
+                "event_date",
+                "record_id",
+            ]
+        )
+        .reset_index(drop=True)
+    )
 
     return impact_details
 
@@ -285,9 +242,7 @@ def get_event_impact_summary(df):
     Events without impact links are retained with a count of zero.
     """
 
-    events = df[
-        df["record_type"] == "event"
-    ][
+    events = df[df["record_type"] == "event"][
         [
             "record_id",
             "indicator",
@@ -296,17 +251,12 @@ def get_event_impact_summary(df):
         ]
     ].copy()
 
-    events["observation_date"] = parse_dates(
-        events["observation_date"]
-    )
+    events["observation_date"] = parse_dates(events["observation_date"])
 
-    impact_links = df[
-        df["record_type"] == "impact_link"
-    ].copy()
+    impact_links = df[df["record_type"] == "impact_link"].copy()
 
     impact_counts = (
-        impact_links
-        .groupby("parent_id")
+        impact_links.groupby("parent_id")
         .agg(
             impact_link_count=(
                 "record_id",
@@ -314,13 +264,7 @@ def get_event_impact_summary(df):
             ),
             affected_indicators=(
                 "related_indicator",
-                lambda values: ", ".join(
-                    sorted(
-                        values.dropna()
-                        .astype(str)
-                        .unique()
-                    )
-                ),
+                lambda values: ", ".join(sorted(values.dropna().astype(str).unique())),
             ),
         )
         .reset_index()
@@ -333,28 +277,23 @@ def get_event_impact_summary(df):
         how="left",
     )
 
-    summary["impact_link_count"] = (
-        summary["impact_link_count"]
-        .fillna(0)
-        .astype(int)
-    )
+    summary["impact_link_count"] = summary["impact_link_count"].fillna(0).astype(int)
 
-    summary["affected_indicators"] = (
-        summary["affected_indicators"]
-        .fillna("None")
-    )
+    summary["affected_indicators"] = summary["affected_indicators"].fillna("None")
 
-    summary = summary[
-        [
-            "record_id",
-            "observation_date",
-            "category",
-            "indicator",
-            "impact_link_count",
-            "affected_indicators",
+    summary = (
+        summary[
+            [
+                "record_id",
+                "observation_date",
+                "category",
+                "indicator",
+                "impact_link_count",
+                "affected_indicators",
+            ]
         ]
-    ].sort_values(
-        "observation_date"
-    ).reset_index(drop=True)
+        .sort_values("observation_date")
+        .reset_index(drop=True)
+    )
 
     return summary
