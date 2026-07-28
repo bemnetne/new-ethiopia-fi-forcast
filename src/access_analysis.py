@@ -1,4 +1,3 @@
-import pandas as pd
 import matplotlib.pyplot as plt
 
 from src.data_explorer import parse_dates

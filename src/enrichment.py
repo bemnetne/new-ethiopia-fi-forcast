@@ -1,9 +1,10 @@
 import pandas as pd
 
 from src.config import (
-    ENRICHMENT_CSV_PATH,
     ENRICHED_DATA_PATH,
+    ENRICHMENT_CSV_PATH,
 )
+
 REQUIRED_FIELDS = {
     "observation": [
         "record_id",
