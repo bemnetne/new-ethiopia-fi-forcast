@@ -25,4 +25,5 @@ reports/
 
 # Generated models
 models/*
-!models/.gitkeep
+!models/.gitkeep.coverage
+.coverage
