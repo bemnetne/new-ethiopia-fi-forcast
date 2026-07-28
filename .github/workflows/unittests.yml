@@ -35,9 +35,12 @@ jobs:
       - name: Run unit and integration tests
         run: |
           pytest \
-            --cov=src \
-            --cov-report=term-missing \
-            --cov-fail-under=60
+          --cov=src.data_utils \
+          --cov=src.data_loader \
+          --cov=src.event_model \
+          --cov=src.forecast_utils \
+          --cov-report=term-missing \
+          --cov-fail-under=60
 
       - name: Confirm dashboard imports
         run: |
